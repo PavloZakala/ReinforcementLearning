@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.distributions import Categorical
-
+import tqdm
 import gymnasium as gym
 from collections import deque
 import numpy as np
@@ -35,7 +35,7 @@ class Policy(nn.Module):
 def reinforce(env, policy, optimizer, n_episodes=1000, max_t=1000, gamma=1.0, print_every=100):
     scores_deque = deque(maxlen=100)
     scores = []
-    for i_episode in range(1, n_episodes + 1):
+    for i_episode in tqdm.tqdm(range(1, n_episodes + 1)):
         saved_log_probs = []
         rewards = []
         state, _ = env.reset()

@@ -1,7 +1,8 @@
-import gym
+import gymnasium as gym
 import pandas as pd
 from collections import defaultdict
 import random
+import tqdm
 
 epsilon = 0.5
 
@@ -24,7 +25,7 @@ def epsilon_greedy_policy(state, Q):
 
 def generate_episode(num_timesteps, Q):
     episode = []
-    state = env.reset()
+    state, _ = env.reset()
 
     for t in range(num_timesteps):
 
@@ -32,7 +33,7 @@ def generate_episode(num_timesteps, Q):
         action = epsilon_greedy_policy(state, Q)
 
         # perform the selected action and store the next state information
-        next_state, reward, done, info = env.step(action)
+        next_state, reward, done, info, _ = env.step(action)
 
         # store the state, action, reward in the episode list
         episode.append((state, action, reward))
@@ -63,13 +64,13 @@ def test_policy(policy, env):
     total_reward = 0
 
     for i in range(num_episodes):
-        state = env.reset()
+        state, _ = env.reset()
         episode_reward = 0
 
         for t in range(num_timesteps):
             # action = env.action_space.sample()
             action = policy[state]
-            next_state, reward, done, info = env.step(action)
+            next_state, reward, done, info, _ = env.step(action)
             episode_reward += reward
 
             if done:
@@ -84,17 +85,15 @@ def test_policy(policy, env):
 
 if __name__ == '__main__':
 
-    env = gym.make('Blackjack-v1')
-
-    # print(test_policy({}, env))
-
+    env = gym.make('Blackjack-v1', natural=True, sab=False)
+    
     Q = defaultdict(float)
     total_return = defaultdict(float)
 
     N = defaultdict(int)
 
-    num_iterations = 200000
-    for i in range(num_iterations):
+    num_iterations = 2000
+    for i in tqdm.tqdm(range(num_iterations)):
         epsilon = 1 - i / num_iterations
         episode = generate_episode(100, Q)
 

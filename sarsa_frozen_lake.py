@@ -1,9 +1,10 @@
-import gym
+import gymnasium as gym
 import random
 
 from collections import defaultdict
 
 import numpy as np
+import tqdm
 
 
 def epsilon_greedy(Q, state, epsilon):
@@ -21,15 +22,16 @@ def generate_policy(Q):
 
     return policy
 
-def sarsa(env, num_episodes, num_timesteps, alpha, gamma, epsilon):
+# On-policy SARSA
+def sarsa(env, num_episodes, num_timesteps, alpha, gamma, epsilon, epsilon_decay=0.95):
     Q = defaultdict(float)
 
-    for i in range(num_episodes):
-        state = env.reset()
+    for i in tqdm.tqdm(range(num_episodes)):
+        state = env.reset()[0]
         action = epsilon_greedy(Q, state, epsilon)
 
         for t in range(num_timesteps):
-            next_state, reward, done, _ = env.step(action)
+            next_state, reward, done, _, _ = env.step(action)
             next_action = epsilon_greedy(Q, next_state, epsilon)
 
             Q[(state, action)] += alpha * (reward + gamma * Q[(next_state, next_action)] - Q[(state, action)])
@@ -39,13 +41,14 @@ def sarsa(env, num_episodes, num_timesteps, alpha, gamma, epsilon):
 
             if done:
                 break
-        show_Q(env, Q)
+        epsilon = max(epsilon * epsilon_decay, 0.1)
 
+    show_Q(env, Q)
     return Q
 
 def test(env, optimal_policy, render=True):
 
-    state = env.reset()
+    state = env.reset()[0]
     if render:
         env.render()
 
@@ -53,7 +56,7 @@ def test(env, optimal_policy, render=True):
     total_reward = 0
     for _ in range(1000):
         action = int(optimal_policy[state])
-        state, reward, done, info = env.step(action)
+        state, reward, done, info, _ = env.step(action)
 
         if render:
             env.render()
@@ -65,12 +68,12 @@ def test(env, optimal_policy, render=True):
     return total_reward
 
 def show_agent(env, policy):
-    state = env.reset()
+    state = env.reset()[0]
     env.render()
 
     for t in range(1000):
 
-        state, reward, done, _ = env.step(policy[state])
+        state, reward, done, _, _ = env.step(policy[state])
         env.render()
         if done:
             break
@@ -94,14 +97,13 @@ def show_Q(env, Q):
 
 
 if __name__ == '__main__':
-    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
-    env.seed(42)
+    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True)
 
     alpha = 0.1
-    gamma = 0.9
+    gamma = 0.95
     epsilon = 0.9
 
-    num_episodes = 5000
+    num_episodes = 500000
     num_timesteps = 1000
 
     Q = sarsa(env, num_episodes, num_timesteps, alpha, gamma, epsilon)
@@ -113,11 +115,11 @@ if __name__ == '__main__':
     show_agent(env, policy)
 
     sum_reward = 0
-    for _ in range(5000):
+    for _ in range(50000):
         total_reward = test(env, policy, render=False)
         sum_reward += total_reward
 
-    print(sum_reward / 5000)
+    print(sum_reward / 50000)
 
     env.close()
 

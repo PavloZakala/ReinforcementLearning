@@ -84,7 +84,8 @@ def policy_iteration(env):
 
     # we learned that in the policy iteration method, we begin by initializing a random policy.
     # so, we will initialize the random policy which selects the action 0 in all the states
-    policy = np.zeros(env.observation_space.n)
+    # policy = np.zeros(env.observation_space.n)
+    policy = np.random.randint(0, env.action_space.n, size=(env.observation_space.n))
 
     # for every iteration
     for i in range(num_iterations):
