@@ -64,6 +64,11 @@ def extract_policy(env, value_table):
     # set the discount factor
     gamma = 1.0
 
+    # 0: Move left
+    # 1: Move down
+    # 2: Move right
+    # 3: Move up
+
     # first, we initialize the policy with zeros, that is, first, we set the actions for all the states to
     # be zero
     policy = np.zeros(env.observation_space.n)
@@ -133,7 +138,6 @@ if __name__ == '__main__':
     # env.P[6][3][1] = (1 / 3, 2, 1.0, False)
 
     optimal_value_function = value_iteration(env=env)
-
     optimal_policy = extract_policy(env, optimal_value_function)
 
     print(optimal_policy)
