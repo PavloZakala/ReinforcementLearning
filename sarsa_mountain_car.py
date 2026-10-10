@@ -146,8 +146,9 @@ def sarsa(env, num_episodes, num_timesteps, alpha, gamma, epsilon,
                 target = shaped_reward
             else:
                 next_action = epsilon_greedy(env, Q, next_state, epsilon)
+                # Q_i = \sum(r + gamma * Q_i+1)
                 target = shaped_reward + gamma * Q[(next_state, next_action)]
-
+            
             Q[(state, action)] += alpha * (target - Q[(state, action)])
 
             total_reward += reward
@@ -397,7 +398,7 @@ def parse_args():
     parser.add_argument('--epsilon-min', type=float, default=0.05, help='minimum exploration rate')
     parser.add_argument('--epsilon-decay', type=float, default=0.995, help='multiplicative epsilon decay per episode')
 
-    parser.add_argument('--num-episodes', type=int, default=100000, help='number of training episodes')
+    parser.add_argument('--num-episodes', type=int, default=10000, help='number of training episodes')
     parser.add_argument('--num-timesteps', type=int, default=200, help='max steps per training episode')
     parser.add_argument('--seed', type=int, default=None, help='seed for python/numpy RNGs')
 

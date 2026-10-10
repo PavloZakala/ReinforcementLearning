@@ -29,7 +29,7 @@ class Policy(nn.Module):
     def act(self, state, epsilon=0.0):
         if np.random.rand() <= epsilon:
             return np.random.choice(self.a_size)
-        q_values = self(torch.tensor(state, dtype=torch.float32, device=device)).to("cpu")
+        q_values = self.forward(torch.tensor(state, dtype=torch.float32, device=device)).to("cpu")
         return torch.argmax(q_values).item()
 
 class DQNAgent:
